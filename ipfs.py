@@ -11,7 +11,7 @@ def pin_to_ipfs(data):
 		"Authorization": f"Bearer {api_key}"
 		}
 
-	response = requests.posts(url, json=data, headers=headers )
+	response = requests.post(url, json=data, headers=headers )
 	cid = response.json().get('IpfsHash')
 
 	return cid
