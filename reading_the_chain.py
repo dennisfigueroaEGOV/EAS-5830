@@ -75,7 +75,7 @@ def is_ordered_block(w3, block_num):
 
 	for tx_hash in block['transactions']:
 		# Get the full transaction details
-		tx = eth_w3.eth.get_transaction(tx_hash)
+		tx = w3.eth.get_transaction(tx_hash)
 
 		if eip1559_flag:
 			if 'maxFeePerGas' in tx:
