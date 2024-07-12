@@ -17,12 +17,6 @@ contract_address = Web3.to_checksum_address(bayc_address)
 with open('/home/codio/workspace/abi.json', 'r') as f:
 	abi = json.load(f)
 
-
-
-# Load the ABI
-with open(abi_file_path, 'r') as f:
-    abi = json.load(f)
-
 ############################
 # Connect to an Ethereum node
 
