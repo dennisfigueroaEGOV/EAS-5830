@@ -69,7 +69,7 @@ def is_ordered_block(w3, block_num):
 
 	for tx_hash in block['transactions']:
 		# Get the full transaction details
-		tx = eth_w3.eth.get_transaction(tx_hash)
+		tx = w3.eth.get_transaction(tx_hash)
 		gas_price = tx.get('gasPrice', 0)
 
 		if prev_gas is not None and gas_price > prev_gas:
