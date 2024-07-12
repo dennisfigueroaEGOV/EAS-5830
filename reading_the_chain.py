@@ -3,6 +3,7 @@ import json
 from web3 import Web3
 from web3.middleware import geth_poa_middleware
 from web3.providers.rpc import HTTPProvider
+import os
 
 
 # If you use one of the suggested infrastructure providers, the url will be of the form
@@ -11,7 +12,7 @@ from web3.providers.rpc import HTTPProvider
 # infura_url = f"https://mainnet.infura.io/v3/{infura_token}"
 
 def connect_to_eth():
-	url = "https://eth-mainnet.g.alchemy.com/v2/UKbhl2VCaO7dWg50txaal9qiLjV2quPt" 
+	url = "https://eth-mainnet.g.alchemy.com/v2/UKbhl2VCaO7dWg50txaal9qiLjV2quPt"
 	w3 = Web3(HTTPProvider(url))
 	assert w3.is_connected(), f"Failed to connect to provider at {url}"
 	return w3
@@ -35,14 +36,12 @@ def connect_with_middleware(contract_json):
 	w3 = Web3(HTTPProvider(url))
 	assert w3.is_connected(), f"Failed to connect to provider at {url}"
 
-
 	# The second section requires you to inject middleware into your w3 object and
 	# create a contract object. Read more on the docs pages at https://web3py.readthedocs.io/en/stable/middleware.html
 	# and https://web3py.readthedocs.io/en/stable/web3.contract.html
 
 	w3.middleware_onion.inject(geth_poa_middleware, layer=0)
 	contract = w3.eth.contract(address=address, abi=abi)
-
 
 	return w3, contract
 
@@ -63,7 +62,20 @@ def is_ordered_block(w3, block_num):
 	block = w3.eth.get_block(block_num)
 	ordered = False
 
-	# TODO YOUR CODE HERE
+	if len(block['transactions']) <= 1:
+		return True
+
+	prev_gas = None
+
+	for tx_hash in block['transactions']:
+		# Get the full transaction details
+		tx = eth_w3.eth.get_transaction(tx_hash)
+		gas_price = tx.get('gasPrice', 0)
+
+		if prev_gas is not None and gas_price > prev_gas:
+			return False
+
+		prev_gas = gas_price
 
 	return ordered
 
@@ -100,22 +112,10 @@ if __name__ == "__main__":
 	# These are addresses associated with the Merkle contract (check on contract
 	# functions and transactions on the block explorer at
 	# https://testnet.bscscan.com/address/0xaA7CAaDA823300D18D3c43f65569a47e78220073
-	admin_address = "0xAC55e7d73A792fE1A9e051BDF4A010c33962809A"
-	owner_address = "0x793A37a85964D96ACD6368777c7C7050F05b11dE"
-	contract_file = "contract_info.json"
-
 	eth_w3 = connect_to_eth()
-	cont_w3, contract = connect_with_middleware(contract_file)
+	if eth_w3.is_connected():
+		print("Successfully connected to Ethereum network")
+	else:
+		print("Unable to connect")
+		# Print the current block number
 
-	latest_block = eth_w3.eth.get_block_number()
-	london_hard_fork_block_num = 12965000
-	assert latest_block > london_hard_fork_block_num, f"Error: the chain never got past the London Hard Fork"
-
-	n = 5
-	for _ in range(n):
-		block_num = random.randint(1, london_hard_fork_block_num - 1)
-		ordered = is_ordered_block(block_num)
-		if ordered:
-			print(f"Block {block_num} is ordered")
-		else:
-			print(f"Block {block_num} is not ordered")
