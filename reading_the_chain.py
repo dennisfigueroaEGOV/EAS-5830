@@ -65,19 +65,32 @@ def is_ordered_block(w3, block_num):
 	if len(block['transactions']) <= 1:
 		return True
 
+	base_fee = block.get('baseFeePerGas', 0)
+
+	eip1559_flag = False
+	if base_fee != 0:
+		eip1559_flag = True
+
 	prev_gas = None
 
 	for tx_hash in block['transactions']:
 		# Get the full transaction details
-		tx = w3.eth.get_transaction(tx_hash)
-		gas_price = tx.get('gasPrice', 0)
+		tx = eth_w3.eth.get_transaction(tx_hash)
 
+		if eip1559_flag:
+			if 'maxFeePerGas' in tx:  
+				gas_price = min(tx['maxPriorityFeePerGas'], tx['maxFeePerGas'] - gas_price)
+			else:  
+				gas_price = tx['gasPrice'] - gas_price
+		else:  
+			gas_price = tx['gasPrice']
+			
 		if prev_gas is not None and gas_price > prev_gas:
 			return False
 
 		prev_gas = gas_price
 
-	return ordered
+	return True
 
 
 def get_contract_values(contract, admin_address, owner_address):
@@ -115,6 +128,7 @@ if __name__ == "__main__":
 	eth_w3 = connect_to_eth()
 	if eth_w3.is_connected():
 		print("Successfully connected to Ethereum network")
+		
 	else:
 		print("Unable to connect")
 		# Print the current block number
