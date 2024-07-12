@@ -75,16 +75,16 @@ def is_ordered_block(w3, block_num):
 
 	for tx_hash in block['transactions']:
 		# Get the full transaction details
-		tx = w3.eth.get_transaction(tx_hash)
+		tx = eth_w3.eth.get_transaction(tx_hash)
 
 		if eip1559_flag:
-			if 'maxFeePerGas' in tx:  
+			if 'maxFeePerGas' in tx:
 				gas_price = min(tx['maxPriorityFeePerGas'], tx['maxFeePerGas'] - gas_price)
-			else:  
+			else:
 				gas_price = tx['gasPrice'] - gas_price
-		else:  
+		else:
 			gas_price = tx['gasPrice']
-			
+
 		if prev_gas is not None and gas_price > prev_gas:
 			return False
 
@@ -107,12 +107,14 @@ def get_contract_values(contract, admin_address, owner_address):
 	check on available contract functions and transactions on the block explorer at
 	https://testnet.bscscan.com/address/0xaA7CAaDA823300D18D3c43f65569a47e78220073
 	"""
-	default_admin_role = int.to_bytes(0, 32, byteorder="big")
+	# default_admin_role = int.to_bytes(0, 32, byteorder="big")
 
 	# TODO complete the following lines by performing contract calls
-	onchain_root = 0  # Get and return the merkleRoot from the provided contract
-	has_role = 0  # Check the contract to see if the address "admin_address" has the role "default_admin_role"
-	prime = 0  # Call the contract to get the prime owned by "owner_address"
+	onchain_root = contract.functions.merkleRoot().call()  # Get and return the merkleRoot from the provided contract
+	default_admin_role = contract.functions.DEFAULT_ADMIN_ROLE().call()
+
+	has_role = contract.functions.hasRole(default_admin_role, admin_address).call()  # Check the contract to see if the address "admin_address" has the role "default_admin_role"
+	prime = contract.functions.getPrimeByOwner(owner_address).call()  # Call the contract to get the prime owned by "owner_address"
 
 	return onchain_root, has_role, prime
 
@@ -128,7 +130,6 @@ if __name__ == "__main__":
 	eth_w3 = connect_to_eth()
 	if eth_w3.is_connected():
 		print("Successfully connected to Ethereum network")
-		
 	else:
 		print("Unable to connect")
 		# Print the current block number
