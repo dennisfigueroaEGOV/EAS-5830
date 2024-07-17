@@ -7,7 +7,7 @@ def sign(m):
     
     account = eth_account.Account.create()
     eth_address = account.address
-    private_key = account.privateKey
+    private_key = account.key
 
     message = encode_defunct(text=m)
     
