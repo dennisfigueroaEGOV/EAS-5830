@@ -46,12 +46,12 @@ def mint_nft(private_key):
     account = w3.eth.account.from_key(private_key)
     nonce = w3.eth.get_transaction_count(account.address)
 
-    claim_nonce = 13379
+    claim_nonce = w3.keccak(text=str(random.randint(1, 1000000)))
 
-    tx = contract.functions.claim(claim_nonce).build_transaction({
+    tx = contract.functions.claim(account.address, claim_nonce).build_transaction({
         'from': account.address,
         'nonce': nonce,
-        'gas': 2000000,
+        'gas': 3321300,
         'gasPrice': w3.eth.gas_price,
     })
 
