@@ -9,7 +9,7 @@ w3.middleware_onion.inject(geth_poa_middleware, layer=0)
 
 contract_address = Web3.to_checksum_address("0x85ac2e065d4526FBeE6a2253389669a12318A412")
 
-with open('nft_abi.json', 'r') as f:
+with open('NFT.json', 'r') as f:
     abi = json.load(f)
 
 contract = w3.eth.contract(address=contract_address, abi=abi)
