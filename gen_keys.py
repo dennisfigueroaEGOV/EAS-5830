@@ -25,7 +25,7 @@ def get_keys(challenge,keyId = 0, filename = "eth_mnemonic.txt"):
     # private_key = "0x62a243B2830Ad777113193FAE41c50B657db7c65"
 
     eth_addr = account.address
-    msg = w3.eth.account.sign_message(signable_message=challenge, private_key=account.privateKey)
+    msg = w3.eth.account.sign_message(signable_message=challenge, private_key=account.key)
 
     sig = msg
 
