@@ -1,3 +1,4 @@
+import eth_account
 from eth_account.messages import encode_defunct
 from web3 import Web3
 from eth_account import Account
@@ -26,12 +27,12 @@ def get_keys(challenge,keyId = 0, filename = "eth_mnemonic.txt"):
     # private_key = "0x62a243B2830Ad777113193FAE41c50B657db7c65"
 
     eth_addr = account.address
-    message = encode_defunct(challenge)
+    msg = eth_account.messages.encode_defunct(challenge)
 
-    sig = w3.eth.account.sign_message(message, private_key=account.key)
+    sig = w3.eth.account.sign_message(msg, private_key=account.privateKey)
 
 
-    assert w3.eth.account.recover_message(signable_message=challenge, signature=sig.signature) == eth_addr, f"Failed to sign message properly"
+    assert eth_account.Account.recover_message(msg,signature=sig.signature.hex()) == eth_addr, f"Failed to sign message properly"
 
     #return sig, acct #acct contains the private key
     return sig, eth_addr
