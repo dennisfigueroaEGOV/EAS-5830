@@ -2,6 +2,8 @@ from web3 import Web3
 from eth_account import Account
 import os
 
+Account.enable_unaudited_hdwallet_features()
+
 def get_keys(challenge,keyId = 0, filename = "eth_mnemonic.txt"):
     """
     Generate a stable private key
