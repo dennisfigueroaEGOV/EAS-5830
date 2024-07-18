@@ -1,5 +1,5 @@
 from web3 import Web3
-import eth_account
+from eth_account import Account
 import os
 
 def get_keys(challenge,keyId = 0, filename = "eth_mnemonic.txt"):
@@ -14,16 +14,20 @@ def get_keys(challenge,keyId = 0, filename = "eth_mnemonic.txt"):
     """
 
     w3 = Web3()
-    private_key = "0x62a243B2830Ad777113193FAE41c50B657db7c65"
 
-    account = w3.eth.account.from_key(private_key)
+    with open(filename, 'r') as f:
+        mnemonic = f.read().strip()
+
+    account = Account.from_mnemonic(mnemonic)
+
+    # private_key = "0x62a243B2830Ad777113193FAE41c50B657db7c65"
 
     eth_addr = account.address
-    msg = w3.eth.account.sign_message(signable_message=challenge, private_key=private_key)
+    msg = w3.eth.account.sign_message(signable_message=challenge, private_key=account.privateKey)
 
     sig = msg
 
-    assert eth_account.Account.recover_message(msg,signature=sig.signature.hex()) == eth_addr, f"Failed to sign message properly"
+    assert w3.eth.account.recover_message(signable_message=challenge, signature=sig.signature) == eth_addr, f"Failed to sign message properly"
 
     #return sig, acct #acct contains the private key
     return sig, eth_addr
