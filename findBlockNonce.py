@@ -28,7 +28,7 @@ def mine_block(k, prev_hash, rand_lines):
             block_content += line.encode('utf-8')
 
         #Add the none to the block
-        block_content += nonce.encode('utf-8')
+        block_content += str(nonce).encode('utf-8')
 
         block_hash = hashlib.sha256(block_content).hexdigest()
 
