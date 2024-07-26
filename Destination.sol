@@ -16,6 +16,10 @@ contract Destination is AccessControl {
 	event Wrap( address indexed underlying_token, address indexed wrapped_token, address indexed to, uint256 amount );
 	event Unwrap( address indexed underlying_token, address indexed wrapped_token, address frm, address indexed to, uint256 amount );
 
+
+    event LogAddress(string message, address value);
+    event LogString(string message, string value);
+
     constructor( address admin ) {
         _grantRole(DEFAULT_ADMIN_ROLE, admin);
         _grantRole(CREATOR_ROLE, admin);
@@ -49,13 +53,21 @@ contract Destination is AccessControl {
 
 	function createToken(address _underlying_token, string memory name, string memory symbol ) public onlyRole(CREATOR_ROLE) returns(address) {
 
+        emit LogAddress("Creating token for underlying:", _underlying_token);
+
 		BridgeToken newToken = new BridgeToken(_underlying_token, name, symbol, address(this));
 		newToken.grantRole(newToken.MINTER_ROLE(), address(this));
 
 		address wrappedTokenAddress = address(newToken);
 
+        emit LogAddress("New wrapped token address:", wrappedTokenAddress);
+
 		underlying_tokens[_underlying_token] = wrappedTokenAddress;
 		wrapped_tokens[wrappedTokenAddress] = _underlying_token;
+
+        emit LogAddress("Mapping updated. underlying_tokens[_underlying_token]:", underlying_tokens[_underlying_token]);
+        emit LogAddress("Mapping updated. wrapped_tokens[wrappedTokenAddress]:", wrapped_tokens[wrappedTokenAddress]);
+
 		tokens.push(wrappedTokenAddress);
 
 		emit Creation(_underlying_token, wrappedTokenAddress);
