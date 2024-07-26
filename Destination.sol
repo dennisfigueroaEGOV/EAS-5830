@@ -38,11 +38,11 @@ contract Destination is AccessControl {
 	function unwrap(address _wrapped_token, address _recipient, uint256 _amount ) public {
 
 		address underlyingTokenAddress = wrapped_tokens[_wrapped_token];
-    	require(underlyingToken != address(0), "Not a valid wrapped token");
+    	require(underlyingTokenAddress != address(0), "Not a valid wrapped token");
 
-		BridgeToken(wrappedTokenAddress).burnFrom(msg.sender, _amount);
+		BridgeToken(_wrapped_token).burnFrom(msg.sender, _amount);
 
-		emit Unwrap(underlying_token, wrapped_token, msg.sender, _recipient, amount);
+		emit Unwrap(underlying_token, wrapped_token, msg.sender, _recipient, _amount);
 
 
 	}
