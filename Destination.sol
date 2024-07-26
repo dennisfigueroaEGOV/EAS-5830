@@ -42,7 +42,7 @@ contract Destination is AccessControl {
 
 		BridgeToken(_wrapped_token).burnFrom(msg.sender, _amount);
 
-		emit Unwrap(underlying_token, wrapped_token, msg.sender, _recipient, _amount);
+		emit Unwrap(underlyingTokenAddress, _wrapped_token, msg.sender, _recipient, _amount);
 
 
 	}
