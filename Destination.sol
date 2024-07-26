@@ -49,7 +49,7 @@ contract Destination is AccessControl {
 
 	function createToken(address _underlying_token, string memory name, string memory symbol ) public onlyRole(CREATOR_ROLE) returns(address) {
 
-		BridgeToken newToken = new BridgeToken(name, symbol, symbol, address(this));
+		BridgeToken newToken = new BridgeToken(_underlying_token, name, symbol, address(this));
 		newToken.grantRole(newToken.MINTER_ROLE(), address(this));
 
 		address wrappedTokenAddress = address(newToken);
@@ -58,7 +58,7 @@ contract Destination is AccessControl {
 		wrapped_tokens[wrappedTokenAddress] = _underlying_token;
 		tokens.push(wrappedTokenAddress);
 
-		emit Creation(underlying_tokens, wrapped_tokens);
+		emit Creation(_underlying_token, newToken);
 
 		return wrappedTokenAddress;
 	}
