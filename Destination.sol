@@ -21,89 +21,37 @@ contract Destination is AccessControl {
         _grantRole(DEFAULT_ADMIN_ROLE, admin);
         _grantRole(CREATOR_ROLE, admin);
         _grantRole(WARDEN_ROLE, admin);
-        console.log("Contract deployed with admin:", admin);
+
     }
 
     function wrap(address _underlying_token, address _recipient, uint256 _amount) public onlyRole(WARDEN_ROLE) {
-        console.log("---------------------------------------------------");
-        console.log("Wrap function called");
-        console.log("Caller:", msg.sender);
-        console.log("Underlying token:", _underlying_token);
-        console.log("Recipient:", _recipient);
-        console.log("Amount:", _amount);
-
-        address wrappedTokenAddress = underlying_tokens[_underlying_token];
-        console.log("Wrapped token address:", wrappedTokenAddress);
-
-        require(wrappedTokenAddress != address(0), "Underlying token not registered");
-        console.log("Wrapped token address is valid");
-
-        BridgeToken(wrappedTokenAddress).mint(_recipient, _amount);
-        console.log("Minted", _amount, "tokens to", _recipient);
-
-        emit Wrap(_underlying_token, wrappedTokenAddress, _recipient, _amount);
-        console.log("Wrap event emitted");
-        console.log("---------------------------------------------------");
+        
+       require(wrapped_tokens[_underlying_token] != address(0), "No wrapped token.");
+        BridgeToken wrapped_token = BridgeToken(wrapped_tokens[_underlying_token]);
+        wrapped_token.mint(_recipient, _amount);
+        emit Wrap(_underlying_token, wrapped_tokens[_underlying_token], _recipient, _amount);
+      
     }
 
     function unwrap(address _wrapped_token, address _recipient, uint256 _amount) public {
-        console.log("---------------------------------------------------");
-        console.log("Unwrap function called");
-        console.log("Caller:", msg.sender);
-        console.log("Wrapped token:", _wrapped_token);
-        console.log("Recipient:", _recipient);
-        console.log("Amount:", _amount);
-
-        address underlyingTokenAddress = wrapped_tokens[_wrapped_token];
-        console.log("Underlying token address:", underlyingTokenAddress);
-
-        require(underlyingTokenAddress != address(0), "Not a valid wrapped token");
-        console.log("Underlying token address is valid");
-
+        
+        require(underlying_tokens[_wrapped_token] != address(0), "No underlying.");
         BridgeToken(_wrapped_token).burnFrom(msg.sender, _amount);
-        console.log("Burned", _amount, "tokens from", msg.sender);
+        emit Unwrap(underlying_tokens[_wrapped_token], _wrapped_token, msg.sender, _recipient, _amount);
 
-        emit Unwrap(underlyingTokenAddress, _wrapped_token, msg.sender, _recipient, _amount);
-        console.log("Unwrap event emitted");
-        console.log("---------------------------------------------------");
     }
 
     function createToken(address _underlying_token, string memory name, string memory symbol) public onlyRole(CREATOR_ROLE) returns(address) {
-        console.log("---------------------------------------------------");
-        console.log("createToken function called");
-        console.log("Caller:", msg.sender);
-        console.log("Underlying token:", _underlying_token);
-        console.log("Name:", name);
-        console.log("Symbol:", symbol);
 
         BridgeToken newToken = new BridgeToken(_underlying_token, name, symbol, address(this));
-        console.log("New BridgeToken created at:", address(newToken));
 
-        newToken.grantRole(newToken.MINTER_ROLE(), address(this));
-        console.log("MINTER_ROLE granted to this contract");
+        underlying_tokens[address(newToken)] = _underlying_token;
+        wrapped_tokens[_underlying_token] = address(newToken);
 
-        address wrappedTokenAddress = address(newToken);
+        tokens.push(address(newToken));
+        emit Creation(_underlying_token, address(newToken));
 
-      console.log("Before update - underlying_tokens[_underlying_token]:", underlying_tokens[_underlying_token]);
-      underlying_tokens[_underlying_token] = wrappedTokenAddress;
-      console.log("After update - underlying_tokens[_underlying_token]:", underlying_tokens[_underlying_token]);
-
-      console.log("Before update - wrapped_tokens[wrappedTokenAddress]:", wrapped_tokens[wrappedTokenAddress]);
-      wrapped_tokens[wrappedTokenAddress] = _underlying_token;
-      console.log("After update - wrapped_tokens[wrappedTokenAddress]:", wrapped_tokens[wrappedTokenAddress]);
-
-        tokens.push(wrappedTokenAddress);
-        console.log("New token added to tokens array");
-
-        require(underlying_tokens[_underlying_token] == wrappedTokenAddress, "Underlying mapping not updated");
-        require(wrapped_tokens[wrappedTokenAddress] == _underlying_token, "Wrapped mapping not updated");
-        console.log("Mapping checks passed");
-
-        emit Creation(_underlying_token, wrappedTokenAddress);
-        console.log("Creation event emitted");
-
-        console.log("Returning wrapped token address:", wrappedTokenAddress);
-        console.log("---------------------------------------------------");
-        return wrappedTokenAddress;
+        return address(newToken);
     }
+
 }
