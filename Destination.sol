@@ -27,8 +27,7 @@ contract Destination is AccessControl {
     function wrap(address _underlying_token, address _recipient, uint256 _amount) public onlyRole(WARDEN_ROLE) {
         
        require(wrapped_tokens[_underlying_token] != address(0), "No wrapped token.");
-        BridgeToken wrapped_token = BridgeToken(wrapped_tokens[_underlying_token]);
-        wrapped_token.mint(_recipient, _amount);
+        BridgeToken(wrapped_tokens[_underlying_token]).mint(_recipient, _amount);
         emit Wrap(_underlying_token, wrapped_tokens[_underlying_token], _recipient, _amount);
       
     }
