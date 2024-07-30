@@ -46,7 +46,7 @@ contract Source is AccessControl {
 
     require(!approved[_token], "Token is already registered");
     approved[_token] = true;
-    tokens.append(_token);
+    tokens.push(_token);
     emit Registration(_token);
 
 	}
