@@ -72,7 +72,7 @@ contract AMM is AccessControl{
 		uint256 buyBalance = ERC20(buyToken).balanceOf(address(this));
 
 		uint256 amountWithFee = sellAmount * (10000 - feebps) / 10000;
-		uint256 swapAmt = (buyBalance * amountWithFee) / (sellBalance + amountWithFee);
+		swapAmt = (buyBalance * amountWithFee) / (sellBalance + amountWithFee);
 
 		ERC20(sellToken).transferFrom(msg.sender, address(this), sellAmount);
 		ERC20(buyToken).transfer(msg.sender,swapAmt);
@@ -81,7 +81,7 @@ contract AMM is AccessControl{
 		require( new_invariant >= invariant, 'Bad trade' );
 		invariant = new_invariant;
 
-		emit Swap(inToken, outToken, sellAmount, swapAmt);
+		emit Swap(sellToken, buyToken, sellAmount, swapAmt);
 
 	}
 
