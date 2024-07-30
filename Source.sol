@@ -24,7 +24,6 @@ contract Source is AccessControl {
 	function deposit(address _token, address _recipient, uint256 _amount ) public {
     // Check if the token being deposited has been “registered”
     require(approved[_token], "Token is not registered yet.");
-	require(_amount > 0, "Must have a value.");
     // Use the ERC20 “transferFrom” function to pull the tokens into the deposit contract
 	ERC20(_token).transferFrom(msg.sender, address(this) ,_amount);
 	
@@ -35,7 +34,6 @@ contract Source is AccessControl {
 
 	function withdraw(address _token, address _recipient, uint256 _amount ) onlyRole(WARDEN_ROLE) public {
     require(approved[_token], "Token is not registered yet.");
-	require(_amount > 0, "Must have a value.");
 	ERC20(_token).transfer(_recipient, _amount);
     emit Withdrawal(_token, _recipient, _amount);
 
