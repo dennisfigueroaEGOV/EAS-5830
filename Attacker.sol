@@ -39,7 +39,7 @@ contract Attacker is AccessControl, IERC777Recipient {
 	  //This executes the attack by calling the deposit() function and then the withdraw() function on the Bank contract.
 		//YOUR CODE TO START ATTACK GOES HERE
         bank.deposit{value: amt}();
-        bank.withdraw();
+        bank.claimAll();
 	}
 
 	/*
